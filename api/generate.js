@@ -6,26 +6,32 @@ export default async function handler(req, res) {
   if (req.method === "OPTIONS") return res.status(200).end();
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+
+  // Log key details without exposing it fully
+  console.log("API key present:", !!apiKey);
+  console.log("API key length:", apiKey ? apiKey.length : 0);
+  console.log("API key prefix:", apiKey ? apiKey.substring(0, 8) : "MISSING");
+
+  if (!apiKey) {
+    return res.status(500).json({ error: "API key not configured on server" });
+  }
+
   try {
     const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
-
-    // Log what we're sending so we can debug
-    console.log("Sending to Anthropic:", JSON.stringify(body));
 
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": process.env.ANTHROPIC_API_KEY,
+        "x-api-key": apiKey,
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify(body),
     });
 
     const data = await response.json();
-
-    // Log the full response so we can see any error details
-    console.log("Anthropic response status:", response.status);
+    console.log("Anthropic status:", response.status);
     console.log("Anthropic response:", JSON.stringify(data));
 
     return res.status(response.status).json(data);
