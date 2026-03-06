@@ -112,7 +112,7 @@ Return ONLY a valid JSON array with exactly 8 objects, no markdown, no explanati
 Mix well-known tracks with deeper cuts. Think like a human who lives and breathes this music.`;
 
     try {
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
+      const response = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
